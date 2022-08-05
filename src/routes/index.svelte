@@ -50,6 +50,9 @@
 		.replaceAll('max-height', 'max-block-size')
 		.replaceAll('min-width', 'min-inline-size')
 		.replaceAll('max-width', 'max-inline-size')
+		
+		.replaceAll('overflow-x', 'overflow-inline')
+		.replaceAll('overflow-y', 'overflow-block')
 
 		.replaceAll('text-align: left', 'text-align: start')
 		.replaceAll('text-align: right', 'text-align: end')
