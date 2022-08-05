@@ -11,7 +11,7 @@
     ? window.localStorage.getItem('applyStyles') === 'true'
     : true
 
-  let physicalText = storedText || `padding-left: 2rem;`
+  let physicalText = storedText || `border-right: 1rem solid purple;`
   let writingMode = storedWritingMode || 'horizontal-tb'
   let applyStyles = storedApplyStyles
 
@@ -21,9 +21,48 @@
     hasWindow && window.localStorage.setItem('applyStyles', applyStyles.toString())
   )
 
+  // most of these are from here - 
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties/Margins_borders_padding
   $: logicalText = physicalText
-    .replace('left', 'inline-start')
-    .replace('right', 'inline-end')
+    .replaceAll('margin-top', 'margin-block-start')
+    .replaceAll('margin-left', 'margin-inline-start')
+    .replaceAll('margin-right', 'margin-inline-end')
+    .replaceAll('margin-bottom', 'margin-block-end')
+    
+    .replaceAll('padding-top', 'padding-block-start')
+    .replaceAll('padding-left', 'padding-inline-start')
+    .replaceAll('padding-right', 'padding-inline-end')
+    .replaceAll('padding-bottom', 'padding-block-end')
+    
+    // have to do the radius ones before the regular border ones
+    .replaceAll('border-top-left-radius', 'border-start-start-radius')
+    .replaceAll('border-bottom-left-radius', 'border-end-start-radius')
+    .replaceAll('border-top-right-radius', 'border-start-end-radius')
+    .replaceAll('border-bottom-right-radius', 'border-end-end-radius')
+
+    .replaceAll('border-top', 'border-block-start')
+    .replaceAll('border-left', 'border-inline-start')
+    .replaceAll('border-right', 'border-inline-end')
+    .replaceAll('border-bottom', 'border-block-end')
+    
+    .replaceAll('min-height', 'min-block-size')
+    .replaceAll('max-height', 'max-block-size')
+    .replaceAll('min-width', 'min-inline-size')
+    .replaceAll('max-width', 'max-inline-size')
+
+    .replaceAll('text-align: left', 'text-align: start')
+    .replaceAll('text-align: right', 'text-align: end')
+    
+    .replaceAll('float: left', 'float: start')
+    .replaceAll('float: right', 'float: end')
+    .replaceAll('clear: left', 'clear: start')
+    .replaceAll('clear: right', 'clear: end')
+
+    // important to do these very generic ones last
+    .replaceAll('top', 'inset-block-start')
+    .replaceAll('left', 'inset-inline-start')
+    .replaceAll('right', 'inset-inline-end')
+    .replaceAll('bottom', 'inset-block-end')
 
   // https://gist.github.com/nyurik/d438cb56a9059a0660ce4176ef94576f
 </script>
@@ -46,59 +85,69 @@
 <hr />
 
 <main>
-  <fieldset>
-    <section>
-      <label for='apply-styles'>
-        <input
-          type='checkbox'
-          id='apply-styles'
-          bind:checked={applyStyles}
-          autocomplete='false'
-        >
-        <strong>apply styles</strong>
-      </label>
+  {#if (hasWindow && !!window.localStorage)}
+    <fieldset>
+      <section>
+        <label for='apply-styles'>
+          <input
+            type='checkbox'
+            id='apply-styles'
+            bind:checked={applyStyles}
+            autocomplete='false'
+          >
+          <strong>apply styles</strong>
+        </label>
 
-      <label for='writing-mode'>
-        <strong>writing mode:</strong>
-        <select
-          name='writing-mode'
-          id='writing-mode'
-          bind:value={writingMode}
-        >
-          <option value='horizontal-tb'>horizontal-tb</option>
-          <option value='vertical-rl'>vertical-rl</option>
-          <option value='vertical-lr'>vertical-lr</option>
-          <option value='sideways-rl'>sideways-rl 🧪</option>
-          <option value='sideways-lr'>sideways-lr 🧪</option>
-        </select>
-      </label>
-    </section>
+        <label for='writing-mode'>
+          <strong>writing mode:</strong>
+          <select
+            name='writing-mode'
+            id='writing-mode'
+            bind:value={writingMode}
+          >
+            <option value='horizontal-tb'>horizontal-tb</option>
+            <option value='vertical-rl'>vertical-rl</option>
+            <option value='vertical-lr'>vertical-lr</option>
+            <option value='sideways-rl' title='experimental'>sideways-rl 🧪</option>
+            <option value='sideways-lr' title='experimental'>sideways-lr 🧪</option>
+          </select>
+        </label>
+      </section>
 
-    <section>
-      <label for='physical'>
-        <strong>physical properties:</strong>
-        <textarea
-          id='physical'
-          style={applyStyles ? physicalText : ''}
-          bind:value={physicalText}
-        />
-      </label>
-  
-      <label for='logical'>
-        <strong>logical properties:</strong>
-        <textarea
-          id='logical'
-          style={applyStyles ? `writing-mode: ${writingMode}; ${logicalText}` : `writing-mode: ${writingMode}`}
-          bind:value={logicalText}
-        />
-      </label>
-    </section>
-  </fieldset>
+      <section>
+        <label for='physical'>
+          <strong>physical properties:</strong>
+          <textarea
+            id='physical'
+            style={applyStyles ? physicalText : ''}
+            bind:value={physicalText}
+          />
+        </label>
+    
+        <label for='logical'>
+          <strong>logical properties:</strong>
+          <textarea
+            id='logical'
+            style={applyStyles ? `writing-mode: ${writingMode}; ${logicalText}` : `writing-mode: ${writingMode}`}
+            bind:value={logicalText}
+          />
+        </label>
+      </section>
+    </fieldset>
+  {/if}
 </main>
 
 <footer>
   <hr />
-  <a href='https://www.ryanfiller.com/'>
+  <a href='https://github.com/ryanfiller/logical-property-converter'>
+    <strong>code</strong>
+  </a>
+  |
+  <a href='https://github.com/ryanfiller/logical-property-converter/issues'>
+    <strong>bugs?</strong>
+  </a>
+  |
+  <a href='https://www.ryanfiller.com'>
     <strong>ryanfiller.com</strong>
   </a>
 </footer>
@@ -164,6 +213,7 @@
     flex: 1;
     display: flex;
     gap: 1rem;
+    position: relative; /* this is to catch any `position: absolute` children */
   }
 
   label[for='apply-styles'] {
