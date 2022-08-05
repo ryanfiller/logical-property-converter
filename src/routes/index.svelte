@@ -2,17 +2,23 @@
   let hasWindow = typeof window !== 'undefined'
   const storedText = (hasWindow && !!window.localStorage.getItem('physicalText'))
     ? window.localStorage.getItem('physicalText')
-    : ''
+    : null
   const storedWritingMode = (hasWindow && !!window.localStorage.getItem('writingMode'))
     ? window.localStorage.getItem('writingMode')
-    : ''
+    : null
 
-  let physicalText = storedText || `padding-left: 2rem`
+  const storedApplyStyles = (hasWindow && !!window.localStorage.getItem('applyStyles'))
+    ? window.localStorage.getItem('applyStyles') === 'true'
+    : true
+
+  let physicalText = storedText || `padding-left: 2rem;`
   let writingMode = storedWritingMode || 'horizontal-tb'
+  let applyStyles = storedApplyStyles
 
   $: (
     hasWindow && window.localStorage.setItem('physicalText', physicalText),
-    hasWindow && window.localStorage.setItem('writingMode', writingMode)
+    hasWindow && window.localStorage.setItem('writingMode', writingMode),
+    hasWindow && window.localStorage.setItem('applyStyles', applyStyles.toString())
   )
 
   $: logicalText = physicalText
@@ -42,12 +48,15 @@
 <main>
   <fieldset>
     <section>
-      <!-- <details>
-        <summary>A list of properties that currently work:</summary>
-        <ul>
-          <li></li>
-        </ul>
-      </details> -->
+      <label for='apply-styles'>
+        <input
+          type='checkbox'
+          id='apply-styles'
+          bind:checked={applyStyles}
+          autocomplete='false'
+        >
+        <strong>apply styles</strong>
+      </label>
 
       <label for='writing-mode'>
         <strong>writing mode:</strong>
@@ -61,7 +70,7 @@
           <option value='vertical-lr'>vertical-lr</option>
           <option value='sideways-rl'>sideways-rl 🧪</option>
           <option value='sideways-lr'>sideways-lr 🧪</option>
-      </select>
+        </select>
       </label>
     </section>
 
@@ -70,6 +79,7 @@
         <strong>physical properties:</strong>
         <textarea
           id='physical'
+          style={applyStyles ? physicalText : ''}
           bind:value={physicalText}
         />
       </label>
@@ -78,8 +88,8 @@
         <strong>logical properties:</strong>
         <textarea
           id='logical'
+          style={applyStyles ? `writing-mode: ${writingMode}; ${logicalText}` : `writing-mode: ${writingMode}`}
           bind:value={logicalText}
-          style={`writing-mode: ${writingMode};`}
         />
       </label>
     </section>
@@ -92,20 +102,6 @@
     <strong>ryanfiller.com</strong>
   </a>
 </footer>
-
-<svelte:head>
-  {@html `
-    <style>
-      textarea#physical {
-        ${physicalText}
-      }
-
-      textarea#logical {
-        ${logicalText}
-      }
-    </style>
-  `}
-</svelte:head>
 
 <style>
   :root {
@@ -135,6 +131,10 @@
     width: 100%;
   }
 
+  strong {
+    display: inline;
+  }
+
   main {
     flex: 1;
     display: flex;
@@ -151,27 +151,26 @@
   fieldset section {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
   fieldset section:nth-child(1) {
     display: flex;
     gap: 1rem;
-    /* justify-content: space-between; */
-    justify-content: flex-end;
+    justify-content: space-between;
   }
 
   fieldset section:nth-child(2) {
     flex: 1;
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
   }
 
-  label[for='writing-mode'] {
-    text-align: right;
+  label[for='apply-styles'] {
+    display: flex;
   }
   
-  label:not([for='writing-mode']) {
+  label:not([for='writing-mode'], [for='apply-styles']) {
     flex: 1;
     flex-basis: calc(0.5 *  var(--readable));
     display: flex;
@@ -183,6 +182,7 @@
     flex: 1;
     resize: none;
     min-height: 25vh;
+    box-sizing: border-box;
   }
 
   footer {
