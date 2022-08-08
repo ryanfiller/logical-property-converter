@@ -157,7 +157,7 @@
 		<strong>bugs?</strong>
 	</a>
 	|
-	<a href="https://www.ryanfiller.com">
+	<a href="https://www.ryanfiller.com?link=logical-properties">
 		<strong>ryanfiller.com</strong>
 	</a>
 </footer>
